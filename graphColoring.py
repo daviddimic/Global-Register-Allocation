@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os, sys
 import networkx as nx
 import matplotlib.pyplot as plt
+from copy import deepcopy
 
 class Graph:
     def __init__(self, graph):
@@ -11,10 +11,7 @@ class Graph:
 
 
     def __str__(self):
-        s = ""
-        for (v1, v2) in self.graph:
-            s += v1 + ": " + v2  + os.linesep
-        return s
+        return str(self.graph)
 
 
     def remove_vertex(self, vertex):
@@ -65,11 +62,15 @@ class Graph:
         """
         get first available color from k colors
         """
-        all_possible_colors = list(range(k, -1, -1))
-        #from all colors remove color od adjecents
+        all_possible_colors = list(range(k-1, -1, -1))
+        #from all colors remove color of adjecents
         for adj in adjacents:
             if coloring[adj] in all_possible_colors:
                 all_possible_colors.remove(coloring[adj])
+
+        if len(all_possible_colors) == 0:
+            return None
+
         return all_possible_colors.pop()
 
 
@@ -90,40 +91,56 @@ class Graph:
     def graph_coloring(self, k, coloring = {}):
         """
         Coloring graph with <= k colors
-        and returns map {node: color}
-        if that coloring it's not possible returns None
+        and returns coloring map {node: color}
+        if node can't be colored color is None and returns None
+        optional argument is coloring: manualy set color for some vertexes
         """
 
-        #ako je neki cvor vec obojen - dodamo ga u listu obojenih
+        g = deepcopy(self)
+
+        #if vertex is already colored
         colored = []
         for (vertex, color) in coloring.items():
-            colored.append((vertex, self.vertex_adjacents(vertex)))
+            colored.append((vertex, g.vertex_adjacents(vertex)))
 
-        smaller_vertexes = self.smaller_degree(k)
+        #SIMPLIFY
+        smaller_vertexes = g.smaller_degree(k)
         stack = []
-
         while len(smaller_vertexes) > 0:
             vertex = smaller_vertexes[-1]
-            stack.append((vertex, self.vertex_adjacents(vertex)))
-            self.remove_vertex(vertex)
-            smaller_vertexes = self.smaller_degree(k)
-        last = stack[-1]
-        stack.append((last[1][0], []))
+            stack.append((vertex, g.vertex_adjacents(vertex)))
+            g.remove_vertex(vertex)
+            smaller_vertexes = g.smaller_degree(k)
 
-        #uzimanje u obzir susedsva sa vec obojenim cvorovima
+        #Optimistic step: maybe vertex could be colored later
+        while not g.empty():
+            smaller_vertexes = g.smaller_degree(float('inf'))
+            vertex = smaller_vertexes[-1]
+            stack.append((vertex, g.vertex_adjacents(vertex)))
+            g.remove_vertex(vertex)
+
+        #last vertex
+        if len(stack) > 0:
+            last = stack[-1]
+            stack.append((last[1][0], []))
+
+        #append colored vertexes in adjacents
         for (v, adjacents) in colored:
             for adj in adjacents:
-                [*map(lambda q: q[1].append(v), filter(lambda t: t[0] == adj , stack))]
+                [*map(lambda q: q[1].append(v), filter(lambda t: t[0] == adj, stack))]
 
-        if not self.empty():
-            return None
 
+        #SELECT
         while len(stack) > 0:
             (v, adj) = stack.pop()
             if v not in coloring.keys():
-                coloring[v] = self.min_color(coloring, k, adj)
+                coloring[v] = g.min_color(coloring, k, adj)
+
+        if None in coloring.values():
+            return None
 
         return coloring
+
 
 
     def visual_graph_coloring(self, k, coloring = {}):
@@ -133,19 +150,15 @@ class Graph:
         G_print = nx.Graph()
         G_print.add_edges_from(self.graph)
 
+        colored = self.graph_coloring(k, coloring)
+        if colored == None or coloring == {}:
+            return None
 
-        print("Graph coloring with %d colors" % k)
-        colored_graph = self.graph_coloring(k, coloring)
-        if colored_graph == None:
-            sys.exit("Graph can't be colored with " + str(k)  + " colors!")
-        print("Number of colors used: ", used_colors(colored_graph))
-
-        #list_of_colors = ['blue', 'yellow', 'green', 'orange', 'pink', 'magenta', 'aqua', 'red', 'purple', 'gray']
         list_of_colors = [float(x/k) for x in range(k)]
 
         #can be colored with less than k colors
         new_colors = []
-        s_colored_graph = sorted(colored_graph.items())
+        s_colored_graph = sorted(coloring.items())
         for (vertex, vertex_color) in s_colored_graph:
             new_colors.append(list_of_colors[vertex_color])
 
@@ -154,7 +167,7 @@ class Graph:
         nx.draw_networkx_nodes(G_print, pos, cmap = plt.get_cmap('jet'),
                                nodelist = sorted(G_print.nodes()),
                                node_color = new_colors,
-                               node_size = 400)
+                               node_size = 500)
         nx.draw_networkx_labels(G_print, pos)
 
         black_edges = G_print.edges()
@@ -175,4 +188,3 @@ def used_colors(colored_graph):
             colors.append(color)
             num_of_colors += 1
     return num_of_colors
-

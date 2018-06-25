@@ -21,19 +21,39 @@ def main():
         sys.exit(e)
 
     g = gc.Graph(graph)
-    print("Initial graph: ")
+    print("Initial graph:")
     print(g)
 
     #number of colors for graph coloring
-    k = 5
+    k = 4
     #optional: set color for some vertexes
-    #coloring = {'5': 0}
+    #coloring = {'a': 1, 'f':2}
     if args.visual:
         colored_graph = g.visual_graph_coloring(k)
-        print(colored_graph)
+        if colored_graph == None:
+            print("Graph can't be colored with ", k, " colors!")
+        else:
+            print("Number of colors used: ", gc.used_colors(colored_graph))
+            print(colored_graph)
     else:
-        colored_graph = g.graph_coloring(k)
-        print(colored_graph)
+        coloring = {}
+        colored_graph = g.graph_coloring(k, coloring)
+        if colored_graph == None:
+            print("Graph can't be colored with ", k, " colors!")
+            print(coloring)
+
+            #vertex_for_spill
+            #remove vertex
+            #color again
+            for (spill, color) in coloring.items():
+                if color == None:
+                    print(spill)
+                    g.remove_vertex(spill)
+                    colored_graph = g.graph_coloring(k)
+                    print(g)
+                    print(colored_graph)
+        else:
+            print(colored_graph)
 
 
 if __name__ == "__main__":
