@@ -177,6 +177,29 @@ class Graph:
         return coloring
 
 
+
+    def spill(self, k, coloring = {}):
+        """
+        coloring graph with k colors
+        if graph can't be colored with k colors spill
+        """
+        start_coloring = coloring.copy()
+
+        g = deepcopy(self)
+
+        colored_graph = g.graph_coloring(k, coloring)
+
+        while colored_graph == None:
+            spill_list = for_spill(coloring)
+            g.remove_vertex(spill_list.pop())
+            #TODO izmeniti polazni kod
+            coloring = start_coloring.copy()
+            colored_graph = g.graph_coloring(k, coloring)
+
+        return colored_graph
+
+
+
 def used_colors(colored_graph):
     """
     number of used colors from k colors
@@ -188,3 +211,17 @@ def used_colors(colored_graph):
             colors.append(color)
             num_of_colors += 1
     return num_of_colors
+
+
+
+def for_spill(coloring):
+    """
+    list of vertexes for spill
+    if colored_graph can't be colored with k colors
+    (colored_graph is None)
+    """
+    spill_list = []
+    for (spill, color) in coloring.items():
+        if color == None:
+            spill_list.append(spill)
+    return spill_list

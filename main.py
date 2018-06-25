@@ -27,7 +27,7 @@ def main():
     #number of colors for graph coloring
     k = 4
     #optional: set color for some vertexes
-    #coloring = {'a': 1, 'f':2}
+    #coloring = {'a': 0, 'f':0}
     if args.visual:
         colored_graph = g.visual_graph_coloring(k)
         if colored_graph == None:
@@ -36,24 +36,8 @@ def main():
             print("Number of colors used: ", gc.used_colors(colored_graph))
             print(colored_graph)
     else:
-        coloring = {}
-        colored_graph = g.graph_coloring(k, coloring)
-        if colored_graph == None:
-            print("Graph can't be colored with ", k, " colors!")
-            print(coloring)
+        print(g.spill(k))
 
-            #vertex_for_spill
-            #remove vertex
-            #color again
-            for (spill, color) in coloring.items():
-                if color == None:
-                    print(spill)
-                    g.remove_vertex(spill)
-                    colored_graph = g.graph_coloring(k)
-                    print(g)
-                    print(colored_graph)
-        else:
-            print(colored_graph)
 
 
 if __name__ == "__main__":
