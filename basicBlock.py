@@ -8,10 +8,10 @@ class BasicBlock:
         self.instructions = instructions
 
     def __print__(self):
-        print "---------"
+        print("---------")
         for instr in self.instructions:
-            print instr
-        print "---------"
+            print(instr)
+        print("---------")
 
 # =======================================================
 # Method: getPairs
@@ -55,7 +55,7 @@ def getLeaders(instructions):
             instructions[i].rstrip(' ')
             num = instructions[i].rsplit(' ')    # returns a list of strings splited by space
             leaders.append(instructions[int(num[-1])-1]) # minus one because of the indexing
-            # print "Goto " + str(int(num[-1])) line on which we jump with goto
+            # print("Goto " + str(int(num[-1]))) line on which we jump with goto
 
     leaders.sort(key = lambda l: int(l.rsplit(' ')[0].rsplit(':')[0]))
     return leaders
@@ -77,10 +77,10 @@ def CreateListOfBasicBlocks(pairs, instructions):
             basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]-1]))
                     # in indexing the instructions first is minus one because of indexing a list starts from zero
                     # the second minus one so we don't catch the last instruction of lock which belongs to next block
-            #print instructions[pair[0]-1:pair[1]-1]
+            #print(instructions[pair[0]-1:pair[1]-1])
         else:
             basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]]))
-            #print instructions[pair[0]-1:pair[1]]
+            #print(instructions[pair[0]-1:pair[1]])
     return basicBlocks
 
 def CreateListOfBasicBlocksFromFile(fileName):
@@ -89,21 +89,21 @@ def CreateListOfBasicBlocksFromFile(fileName):
     return CreateListOfBasicBlocks(pairs, instructions)
 
 def PrintPairs(pairs):
-    print "Pairs of start end indexes of basic block: "
-    print "---------------------"
+    print("Pairs of start end indexes of basic block: ")
+    print("---------------------")
     for i in pairs:
-        print i
-    print "---------------------"
+        print(i)
+    print ("---------------------")
 
 def PrintLeaderInstructions(leaders):
-    print "Leader instructions: "
-    print "---------------------"
+    print ("Leader instructions: ")
+    print ("---------------------")
     for leader in leaders:
-        print leader
-    print "---------------------"
+        print(leader)
+    print ("---------------------")
 
 def PrintBasicBlocks(basicBlocks):
-    print "Basic Blocks: "
+    print ("Basic Blocks: ")
     for bb in basicBlocks:
         bb.__print__()
 
