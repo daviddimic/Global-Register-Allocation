@@ -13,6 +13,8 @@ class BasicBlock:
             print(instr)
         print("---------")
 
+    def __reverse__(self):
+        self.instructions = self.instructions[::-1]
 # =======================================================
 # Method: getPairs
 # Return: a list of toupples (start, end) with indexes of begining and end of each basic block
@@ -88,6 +90,11 @@ def CreateListOfBasicBlocksFromFile(fileName):
     pairs = getPairs(instructions)
     return CreateListOfBasicBlocks(pairs, instructions)
 
+def ReverseListOfBasicBlocks(basicBlocks):
+    for b in basicBlocks:
+        b.__reverse__()
+    basicBlocks.reverse()
+
 def PrintPairs(pairs):
     print("Pairs of start end indexes of basic block: ")
     print("---------------------")
@@ -108,7 +115,7 @@ def PrintBasicBlocks(basicBlocks):
         bb.__print__()
 
 def main():
-    fileName = 'testBasicBlocks/bbtest1.txt'
+    fileName = 'testBasicBlocks/bbtest2.txt'
     basicBlocks = CreateListOfBasicBlocksFromFile(fileName)
     PrintBasicBlocks(basicBlocks)
 
