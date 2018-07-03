@@ -109,9 +109,8 @@ def PrintBasicBlocks(basicBlocks):
 
 def main():
     fileName = 'testBasicBlocks/bbtest1.txt'
-    with open(fileName) as f:
-        basicBlocks = CreateListOfBasicBlocksFromFile(fileName)
-        PrintBasicBlocks(basicBlocks)
+    basicBlocks = CreateListOfBasicBlocksFromFile(fileName)
+    PrintBasicBlocks(basicBlocks)
 
 if __name__=="__main__":
     main()
