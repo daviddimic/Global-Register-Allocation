@@ -1,3 +1,5 @@
+import sys
+
 class BasicBlock:
     # =================================================================================
     # startBB and endBB represent the instructions with which basic block starts/ends
@@ -7,14 +9,21 @@ class BasicBlock:
         self.endBB = endBB
         self.instructions = instructions
 
-    def __print__(self):
-        print("---------")
+    def __str__(self):
+        str = ""
+        header = "---------\n"
+        str += header
         for instr in self.instructions:
-            print(instr)
-        print("---------")
+            str += instr + "\n"
+        str += header
+        return str
 
     def __reverse__(self):
         self.instructions = self.instructions[::-1]
+
+    def __getInstructions__(self):
+        return self.instructions
+
 # =======================================================
 # Method: getPairs
 # Return: a list of toupples (start, end) with indexes of begining and end of each basic block
@@ -67,8 +76,9 @@ def getLeadersFromFile(fileName):
     return getLeaders(instructions)
 
 def getInstructionsFromFile(fileName):
-    instructions = [line.rstrip('\n') for line in open(fileName)]
-    return instructions
+    with open(fileName, 'r') as f:
+        instructions = [line.rstrip('\n') for line in f]
+        return instructions
 
 def CreateListOfBasicBlocks(pairs, instructions):
     basicBlocks = []
@@ -112,7 +122,7 @@ def PrintLeaderInstructions(leaders):
 def PrintBasicBlocks(basicBlocks):
     print ("Basic Blocks: ")
     for bb in basicBlocks:
-        bb.__print__()
+        print(bb)
 
 def main():
     fileName = 'testBasicBlocks/bbtest2.txt'
