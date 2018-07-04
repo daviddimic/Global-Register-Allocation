@@ -3,6 +3,7 @@ tokens = (
     'NUMBER',
     'VARIABLE',
     'OPERATOR',
+    'LGT',
     'ASSIGN',
     'IF',
     'GOTO',
@@ -40,13 +41,16 @@ def t_VARIABLE(t):
     return t
 
 def t_OPERATOR(t):
-    r'[<>+*/-]'
+    r'[+*/-]'
+    return t
+
+def t_LGT(t):
+    r'(<=)|[<>]|(>=)'
     return t
 
 def t_ASSIGN(t):
     r':='
     return t
-
 
 t_ignore  = ' \t\n'
 
