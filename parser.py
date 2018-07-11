@@ -1,12 +1,16 @@
 # =================================================================================
 # Parser for one instruction only
 # =================================================================================
-import yacc as yacc
+import yacc
 import lexer
 
 tokens = lexer.tokens  # token list
 use = []
 kill = []
+
+def p_instruction_assign_instruction(p):
+    '''instruction  : VARIABLE ASSIGN instruction '''
+    kill.append(p[1])
 
 def p_instruction_assign_num(p):
     '''instruction  : VARIABLE ASSIGN NUMBER '''
@@ -17,20 +21,20 @@ def p_instruction_assign_var(p):
     use.append(p[3])
     kill.append(p[1])
 
-def p_instruction_assign_variables(p):
+def p_instruction_variables(p):
     '''instruction  : VARIABLE OPERATOR VARIABLE'''
     use.append(p[1])
     use.append(p[3])
 
-def p_instruction_assign_varnum(p):
+def p_instruction_varnum(p):
     '''instruction  : VARIABLE OPERATOR NUMBER'''
     use.append(p[1])
 
-def p_instruction_assign_numvar(p):
+def p_instruction_numvar(p):
     '''instruction  : NUMBER OPERATOR VARIABLE'''
     use.append(p[3])
 
-def p_instruction_assign_numbers(p):
+def p_instruction_numbers(p):
     '''instruction  : NUMBER OPERATOR NUMBER'''
 
 def p_instruction_if_variables(p):
@@ -57,15 +61,18 @@ def p_instruction_return(p):
     '''instruction  : RETURN VARIABLE '''
     use.append(p[2])
 
+def p_instruction_array(p):
+    '''instruction  : VARIABLE ARRAY instruction ARRAY '''
+
 def p_error(p):
     print("Syntax error at '%s'" % p.value)
 
 yacc.yacc()
 
 def main():
-    data = """ t := a """
+    data = """  b := niz[ind + s] """
     yacc.parse(data)
-    print(use)
+    print(use, kill)
 
 if __name__ == "__main__":
     main()

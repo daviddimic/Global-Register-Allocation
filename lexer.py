@@ -1,4 +1,5 @@
-import lex as lex
+import lex
+
 tokens = (
     'NUMBER',
     'VARIABLE',
@@ -8,7 +9,8 @@ tokens = (
     'IF',
     'GOTO',
     'IFFALSE',
-    'RETURN'
+    'RETURN',
+    'ARRAY'
 )
 
 def t_NUMBER(t):
@@ -24,6 +26,10 @@ def t_IFFALSE(t):
 def t_IF(t):
     r'(if)|(IF)'
     t.value = t.value.lower()
+    return t
+
+def t_ARRAY(t):
+    r'[\[\]]'
     return t
 
 def t_GOTO(t):
