@@ -1,13 +1,17 @@
-import sys
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 
 class BasicBlock:
-    # =================================================================================
-    # startBB and endBB represent the instructions with which basic block starts/ends
-    # =================================================================================
-    def __init__(self, startBB, endBB, instructions):
+    """
+    startBB and endBB represent the instructions with which basic block starts/ends
+    inBB represents variables used in basic block
+    """
+    def __init__(self, startBB, endBB, instructions, inBB):
         self.startBB = startBB
         self.endBB = endBB
         self.instructions = instructions
+        self.inBB = inBB
 
     def __str__(self):
         str = ""
@@ -24,11 +28,11 @@ class BasicBlock:
     def __getInstructions__(self):
         return self.instructions
 
-# =======================================================
-# Method: getPairs
-# Return: a list of toupples (start, end) with indexes of begining and end of each basic block
-# =======================================================
 def getPairs(instructions):
+    """
+    Method: getPairs
+    Return: a list of toupples (start, end) with indexes of begining and end of each basic block
+    """
     leaders = getLeaders(instructions)
     n = len(instructions)
 
@@ -45,16 +49,15 @@ def getPairs(instructions):
         pairStartEnd.append((startBB, endBB))
     return pairStartEnd
 
-# =======================================================
-# Method: getLeaders
-# Return: a list of leader instructions in 3 address code
-
-# Leader instructions:
-#   - First instruction is always a leader instruction
-#   - Instruction on which we jump with goto is a leader instruction
-#   - First instruction after instruction that contains goto is a leader instruction
-# =======================================================
 def getLeaders(instructions):
+    """
+    Method: getLeaders
+    Return: a list of leader instructions in 3 address code
+    Leader instructions:
+      - First instruction is always a leader instruction
+      - Instruction on which we jump with goto is a leader instruction
+      - First instruction after instruction that contains goto is a leader instruction
+    """
     leaders = [instructions[0]]
     n = len(instructions)
 
@@ -64,8 +67,10 @@ def getLeaders(instructions):
                 leaders.append(instructions[i+1])
 
             instructions[i].rstrip(' ')
-            num = instructions[i].rsplit(' ')    # returns a list of strings splited by space
-            leaders.append(instructions[int(num[-1])-1]) # minus one because of the indexing
+            # returns a list of strings splited by space
+            num = instructions[i].rsplit(' ')
+            # minus one because of the indexing
+            leaders.append(instructions[int(num[-1])-1])
             # print("Goto " + str(int(num[-1]))) line on which we jump with goto
 
     leaders.sort(key = lambda l: int(l.rsplit(' ')[0].rsplit(':')[0]))
@@ -85,13 +90,14 @@ def CreateListOfBasicBlocks(pairs, instructions):
     n = len(instructions)
 
     for pair in pairs:
-        if(n != pair[1]):   # so the last block catches the last instruction
-            basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]-1]))
-                    # in indexing the instructions first is minus one because of indexing a list starts from zero
-                    # the second minus one so we don't catch the last instruction of lock which belongs to next block
+        if(n != pair[1]):
+             # so the last block catches the last instruction
+            basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]-1], set([])))
+            # in indexing the instructions first is minus one because of indexing a list starts from zero
+            # the second minus one so we don't catch the last instruction of lock which belongs to next block
             #print(instructions[pair[0]-1:pair[1]-1])
         else:
-            basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]]))
+            basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]], set([])))
             #print(instructions[pair[0]-1:pair[1]])
     return basicBlocks
 
@@ -129,5 +135,5 @@ def main():
     basicBlocks = CreateListOfBasicBlocksFromFile(fileName)
     PrintBasicBlocks(basicBlocks)
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
