@@ -7,11 +7,12 @@ class BasicBlock:
     startBB and endBB represent the instructions with which basic block starts/ends
     inBB represents variables used in basic block
     """
-    def __init__(self, startBB, endBB, instructions, inBB):
+    def __init__(self, startBB, endBB, instructions, inBB, exitBB):
         self.startBB = startBB
         self.endBB = endBB
         self.instructions = instructions
         self.inBB = inBB
+        self.exitBB = exitBB
 
     def __str__(self):
         str = ""
@@ -27,6 +28,12 @@ class BasicBlock:
 
     def __getInstructions__(self):
         return self.instructions
+
+    def isExit(self):
+        return self.exitBB
+
+    def setInBB(self, inBB):
+        self.inBB = inBB
 
 def getPairs(instructions):
     """
@@ -92,13 +99,12 @@ def CreateListOfBasicBlocks(pairs, instructions):
     for pair in pairs:
         if(n != pair[1]):
              # so the last block catches the last instruction
-            basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]-1], set([])))
+            basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]-1], set([]), False))
             # in indexing the instructions first is minus one because of indexing a list starts from zero
             # the second minus one so we don't catch the last instruction of lock which belongs to next block
-            #print(instructions[pair[0]-1:pair[1]-1])
         else:
-            basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]], set([])))
-            #print(instructions[pair[0]-1:pair[1]])
+            basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]], set([]), True))
+
     return basicBlocks
 
 def CreateListOfBasicBlocksFromFile(fileName):

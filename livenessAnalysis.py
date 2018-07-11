@@ -6,17 +6,28 @@ import parser
 import yacc
 
 def livenessAnalysis(basicBlocks):
+    livenessList = []
+
     bb.ReverseListOfBasicBlocks(basicBlocks)
     bb.PrintBasicBlocks(basicBlocks)
 
-    for block in basicBlocks:
+    use = set([])
+    # REPEAT UNTIL NEMA PROMENA U IN B
+    for block in basicBlocks: # i nije exitBB
+
         listOfInstructions = block.__getInstructions__()
-        use = set([])
+        #outB = # UNIJA SVIH INOVA SLEDBENIKA
+
         for instr in listOfInstructions:
             useI, killI = parseInstruction(instr)
             use = use.union(set(useI))
             use = use.difference(set(killI))
             print(use)
+            livenessList.append(use)
+
+        block.setInBB(use)
+
+    return livenessList
 
 def parseInstruction(instruction):
     #remove number of instruction
