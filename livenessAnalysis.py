@@ -35,6 +35,20 @@ def parseInstruction(instruction):
     yacc.parse(instruction)
     return parser.use, parser.kill
 
+def modelGraph(livenessList):
+    """
+    model adjacency list (for graph coloring) from liveness list
+    """
+    graph = []
+    for instr in livenessList:
+        for i, node1 in enumerate(instr):
+            for node2 in instr[i+1:]:
+                t = [node1, node2]
+                t_rev = [node2, node1]
+                if t not in graph and t_rev not in graph:
+                    graph.append(t)
+    return graph
+
 def main():
     fileName = 'testBasicBlocks/bbtest2.txt'
     basicBlocks = bb.CreateListOfBasicBlocksFromFile(fileName)
