@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 class BasicBlock:
     """
     startBB and endBB represent the instructions with which basic block starts/ends
@@ -13,6 +12,7 @@ class BasicBlock:
         self.instructions = instructions
         self.inBB = inBB
         self.exitBB = exitBB
+        self.changes = False
 
     def __str__(self):
         str = ""
@@ -29,11 +29,39 @@ class BasicBlock:
     def __getInstructions__(self):
         return self.instructions
 
-    def isExit(self):
+    def getExitBB(self):
         return self.exitBB
 
     def setInBB(self, inBB):
+        if self.inBB != inBB:
+            self.changes = True
+        else:
+            self.changes = False
+
         self.inBB = inBB
+
+    def getInBB(self):
+        return self.inBB
+
+    def getStartBB(self):
+        return self.startBB
+
+    def getChanges(self):
+        return self.changes
+
+    def nextBB(self):
+        return self.endBB + 1
+
+
+def hasChanges(basicBlocks):
+    '''
+    Returns True if there's been a change in inSetBB of some basic block
+    False otherwise
+    '''
+    for b in basicBlocks:
+        if b.getChanges():
+            return True
+    return False
 
 def getPairs(instructions):
     """

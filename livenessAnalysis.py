@@ -8,29 +8,64 @@ from functools import reduce
 
 
 def livenessAnalysis(basicBlocks):
+    #TODO napraviti do-while
     livenessList = []
 
     bb.ReverseListOfBasicBlocks(basicBlocks)
     bb.PrintBasicBlocks(basicBlocks)
 
-    use = set([])
-    # REPEAT UNTIL NEMA PROMENA U IN B
-    for block in basicBlocks: # i nije exitBB
 
+    use = set([])
+    for i, block in enumerate(basicBlocks):
         listOfInstructions = block.__getInstructions__()
-        #outB = # UNIJA SVIH INOVA SLEDBENIKA
 
         for instr in listOfInstructions:
+            parser.kill = []
+            parser.use = []
+
             useI, killI = parseInstruction(instr)
             use = use.union(set(useI))
             use = use.difference(set(killI))
-            print(use) #TODO remove
+            print(use)
             livenessList.append(list(use))
 
         block.setInBB(use)
+        if i+1 != len(basicBlocks):
+            use = use.union(inSetFromGoto(basicBlocks[i+1], basicBlocks))
+
+
+    while bb.hasChanges(basicBlocks):
+        use = set([])
+        livenessList = []
+        for i, block in enumerate(basicBlocks):
+            listOfInstructions = block.__getInstructions__()
+
+            for instr in listOfInstructions:
+                parser.kill = []
+                parser.use = []
+
+                useI, killI = parseInstruction(instr)
+                use = use.union(set(useI))
+                use = use.difference(set(killI))
+                print(use)
+                livenessList.append(list(use))
+
+            block.setInBB(use)
+            if i+1 != len(basicBlocks):
+                use = use.union(inSetFromGoto(basicBlocks[i+1], basicBlocks))
 
     return livenessList
 
+
+def inSetFromGoto(block, basicBlocks):
+    instruction = block.__getInstructions__()[0]
+    if not instruction.__contains__('goto'):
+        return set([])
+
+    gotoNumber = int(instruction.split(' ')[-1])
+    for b in basicBlocks:
+        if b.getStartBB() == gotoNumber:
+            return set(b.getInBB())
 
 def parseInstruction(instruction):
     #remove number of instruction
@@ -72,10 +107,11 @@ def modelGraph(livenessList):
 
 
 def main():
-    fileName = 'testBasicBlocks/bbtest2.txt'
+    fileName = 'testBasicBlocks/bbtest1.txt'
     basicBlocks = bb.CreateListOfBasicBlocksFromFile(fileName)
     print(modelGraph(livenessAnalysis(basicBlocks)))
-
+    #bb.ReverseListOfBasicBlocks(basicBlocks)
+    #print(inSetFromGoto(basicBlocks[1], basicBlocks))
 
 if __name__ == "__main__":
     main()
