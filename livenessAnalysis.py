@@ -22,8 +22,8 @@ def livenessAnalysis(basicBlocks):
             useI, killI = parseInstruction(instr)
             use = use.union(set(useI))
             use = use.difference(set(killI))
-            print(use)
-            livenessList.append(use)
+            print(use) #TODO remove
+            livenessList.append(list(use))
 
         block.setInBB(use)
 
@@ -41,6 +41,9 @@ def modelGraph(livenessList):
     """
     graph = []
     for instr in livenessList:
+        if len(instr) == 1 and list(instr) not in graph:
+            graph.append(list(instr))
+
         for i, node1 in enumerate(instr):
             for node2 in instr[i+1:]:
                 t = [node1, node2]
@@ -52,7 +55,7 @@ def modelGraph(livenessList):
 def main():
     fileName = 'testBasicBlocks/bbtest2.txt'
     basicBlocks = bb.CreateListOfBasicBlocksFromFile(fileName)
-    livenessAnalysis(basicBlocks)
+    print(modelGraph(livenessAnalysis(basicBlocks)))
 
 if __name__ == "__main__":
     main()
