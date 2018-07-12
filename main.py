@@ -29,7 +29,7 @@ def main():
     #optional: set color for some vertexes
     #coloring = {'a': 0, 'f':0}
     if args.visual:
-        colored_graph = g.visual_graph_coloring(k)
+        colored_graph = gc.visual_graph_coloring(g, k)
         if colored_graph == None:
             print("Graph can't be colored with ", k, " colors!")
         else:

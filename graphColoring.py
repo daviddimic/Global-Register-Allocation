@@ -34,7 +34,9 @@ class Graph:
         """
         deg = 0
         for v in self.graph:
-            if v[0] == vertex or v[1] == vertex:
+            if v[0] == v[1] and (v[0] == vertex or v[1] == vertex):
+                return 0
+            elif (v[0] == vertex or v[1] == vertex):
                 deg += 1
 
         return deg if deg else None
@@ -65,6 +67,11 @@ class Graph:
         all_possible_colors = list(range(k-1, -1, -1))
         #from all colors remove color of adjecents
         for adj in adjacents:
+
+            #TODO obojiti suseda ako on nije obojen prvi put
+            if adj not in coloring.keys():
+                coloring[adj] = 0
+
             if coloring[adj] in all_possible_colors:
                 all_possible_colors.remove(coloring[adj])
 
@@ -80,7 +87,9 @@ class Graph:
         """
         adjacents = []
         for v in self.graph:
-            if vertex == v[0]:
+            if v[0] == v[1] and v[0] == vertex:
+                pass
+            elif vertex == v[0]:
                 adjacents.append(v[1])
             elif vertex == v[1]:
                 adjacents.append(v[0])
@@ -95,13 +104,13 @@ class Graph:
         if node can't be colored color is None and returns None
         optional argument is coloring: manualy set color for some vertexes
         """
-
         g = deepcopy(self)
 
         #if vertex is already colored
         colored = []
         for (vertex, color) in coloring.items():
             colored.append((vertex, g.vertex_adjacents(vertex)))
+
 
         #SIMPLIFY
         smaller_vertexes = g.smaller_degree(k)
@@ -118,11 +127,6 @@ class Graph:
             vertex = smaller_vertexes[-1]
             stack.append((vertex, g.vertex_adjacents(vertex)))
             g.remove_vertex(vertex)
-
-        #last vertex
-        if len(stack) > 0:
-            last = stack[-1]
-            stack.append((last[1][0], []))
 
         #append colored vertexes in adjacents
         for (v, adjacents) in colored:
@@ -142,47 +146,13 @@ class Graph:
         return coloring
 
 
-
-    def visual_graph_coloring(self, k, coloring = {}):
-        """
-        Visualize colored graph with k colors
-        """
-        G_print = nx.Graph()
-        G_print.add_edges_from(self.graph)
-
-        colored = self.graph_coloring(k, coloring)
-        if colored == None or coloring == {}:
-            return None
-
-        list_of_colors = [float(x/k) for x in range(k)]
-
-        #can be colored with less than k colors
-        new_colors = []
-        s_colored_graph = sorted(coloring.items())
-        for (vertex, vertex_color) in s_colored_graph:
-            new_colors.append(list_of_colors[vertex_color])
-
-        #draw
-        pos = nx.spring_layout(G_print)
-        nx.draw_networkx_nodes(G_print, pos, cmap = plt.get_cmap('jet'),
-                               nodelist = sorted(G_print.nodes()),
-                               node_color = new_colors,
-                               node_size = 500)
-        nx.draw_networkx_labels(G_print, pos)
-
-        black_edges = G_print.edges()
-        nx.draw_networkx_edges(G_print, pos, edgelist = black_edges)
-        plt.show()
-
-        return coloring
-
-
-
     def spill(self, k, coloring = {}):
         """
         coloring graph with k colors
-        if graph can't be colored with k colors spill
+        if graph can't be colored with k colors do spill
         """
+        #TODO ne radi sa datim coloring
+
         start_coloring = coloring.copy()
 
         g = deepcopy(self)
@@ -191,13 +161,49 @@ class Graph:
 
         while colored_graph == None:
             spill_list = for_spill(coloring)
-            g.remove_vertex(spill_list.pop())
+            spill_vertex = spill_list.pop()
+            g.remove_vertex(spill_vertex)
             #TODO izmeniti polazni kod
             coloring = start_coloring.copy()
             colored_graph = g.graph_coloring(k, coloring)
 
         return colored_graph
 
+def visual_graph_coloring(g, k, coloring = {}):
+    #TODO dati samo mapu obojenosti
+    """
+    Visualize colored graph with k colors
+    """
+    G_print = nx.Graph()
+    G_print.add_edges_from(g.graph)
+
+    colored = g.spill(k, coloring) #TODO replace with spill
+    if colored == None: # or coloring == {}:
+        return None
+
+    list_of_colors = [float(x/k) for x in range(k)]
+
+    #can be colored with less than k colors
+    new_colors = []
+    s_colored_graph = sorted(colored.items())
+    for (vertex, vertex_color) in s_colored_graph:
+        new_colors.append(list_of_colors[vertex_color])
+
+    print(G_print.nodes())
+
+    #draw
+    pos = nx.spring_layout(G_print)
+    nx.draw_networkx_nodes(G_print, pos, cmap = plt.get_cmap('jet'),
+                           nodelist = sorted(G_print.nodes()),
+                           node_color = new_colors,
+                           node_size = 500)
+    nx.draw_networkx_labels(G_print, pos)
+
+    black_edges = G_print.edges()
+    nx.draw_networkx_edges(G_print, pos, edgelist = black_edges)
+    plt.show()
+
+    return colored
 
 
 def used_colors(colored_graph):
