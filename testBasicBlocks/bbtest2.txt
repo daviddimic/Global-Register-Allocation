@@ -8,5 +8,5 @@
 8: c := 4
 9: t1 := b * d
 10: ifFalse a > b goto 7
-11: t2 := t1 + c
+11: b := 3
 12: return t2
