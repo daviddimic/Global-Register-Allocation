@@ -68,7 +68,7 @@ class Graph:
         #from all colors remove color of adjecents
         for adj in adjacents:
 
-            #TODO obojiti suseda ako on nije obojen prvi put
+            #first: color neighbour if he's not colored with 0
             if adj not in coloring.keys():
                 coloring[adj] = 0
 
@@ -140,6 +140,7 @@ class Graph:
             if v not in coloring.keys():
                 coloring[v] = g.min_color(coloring, k, adj)
 
+        #if node can't be colored color is None and returns None
         if None in coloring.values():
             return None
 
@@ -152,10 +153,10 @@ class Graph:
         if graph can't be colored with k colors do spill
         """
         #TODO ne radi sa datim coloring
-
+        g = deepcopy(self)
         start_coloring = coloring.copy()
 
-        g = deepcopy(self)
+        spilled_vertexes = []
 
         colored_graph = g.graph_coloring(k, coloring)
 
@@ -163,23 +164,35 @@ class Graph:
             spill_list = for_spill(coloring)
             spill_vertex = spill_list.pop()
             g.remove_vertex(spill_vertex)
+            spilled_vertexes.append(spill_vertex)
+
             #TODO izmeniti polazni kod
+
             coloring = start_coloring.copy()
             colored_graph = g.graph_coloring(k, coloring)
 
-        return colored_graph
+        return colored_graph, spilled_vertexes
 
-def visual_graph_coloring(g, k, coloring = {}):
-    #TODO dati samo mapu obojenosti
+
+def visual_graph_coloring(graph, k, coloring = {}):
     """
     Visualize colored graph with k colors
     """
+    g = deepcopy(graph)
+    
+    #color graph with spill step
+    colored, spilled_vertexes = g.spill(k, coloring)
+    if colored == None:
+        return None
+
+    #remove spilled vertexes
+    for v in spilled_vertexes:
+        g.remove_vertex(v)
+
+    #model nx graph and add edges
     G_print = nx.Graph()
     G_print.add_edges_from(g.graph)
 
-    colored = g.spill(k, coloring) #TODO replace with spill
-    if colored == None: # or coloring == {}:
-        return None
 
     list_of_colors = [float(x/k) for x in range(k)]
 
@@ -188,8 +201,6 @@ def visual_graph_coloring(g, k, coloring = {}):
     s_colored_graph = sorted(colored.items())
     for (vertex, vertex_color) in s_colored_graph:
         new_colors.append(list_of_colors[vertex_color])
-
-    print(G_print.nodes())
 
     #draw
     pos = nx.spring_layout(G_print)
@@ -217,7 +228,6 @@ def used_colors(colored_graph):
             colors.append(color)
             num_of_colors += 1
     return num_of_colors
-
 
 
 def for_spill(coloring):
