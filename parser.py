@@ -5,37 +5,26 @@ import yacc
 import lexer
 
 tokens = lexer.tokens  # token list
+
+# Lists use and kill are used in livenessAnalysis.py for the algorithm
 use = []
 kill = []
 
-def p_instruction_assign_instruction(p):
-    '''instruction  : VARIABLE ASSIGN instruction '''
+def p_instruction_assign_array(p):
+    '''instruction  : VARIABLE ARRAY E ARRAY ASSIGN E'''
     kill.append(p[1])
 
-def p_instruction_assign_num(p):
-    '''instruction  : VARIABLE ASSIGN NUMBER '''
+def p_instruction_assign_array_toArray(p):
+    '''instruction  : VARIABLE ARRAY E ARRAY ASSIGN E_ARRAY'''
     kill.append(p[1])
 
-def p_instruction_assign_var(p):
-    '''instruction  : VARIABLE ASSIGN VARIABLE '''
-    use.append(p[3])
+def p_instruction_assign(p):
+    '''instruction  : VARIABLE ASSIGN E'''
     kill.append(p[1])
 
-def p_instruction_variables(p):
-    '''instruction  : VARIABLE OPERATOR VARIABLE'''
-    use.append(p[1])
-    use.append(p[3])
-
-def p_instruction_varnum(p):
-    '''instruction  : VARIABLE OPERATOR NUMBER'''
-    use.append(p[1])
-
-def p_instruction_numvar(p):
-    '''instruction  : NUMBER OPERATOR VARIABLE'''
-    use.append(p[3])
-
-def p_instruction_numbers(p):
-    '''instruction  : NUMBER OPERATOR NUMBER'''
+def p_instruction_e_array(p):
+    '''instruction  : VARIABLE ASSIGN E_ARRAY'''
+    kill.append(p[1])
 
 def p_instruction_if_variables(p):
     '''instruction  : IFFALSE VARIABLE LGT VARIABLE GOTO NUMBER
@@ -57,12 +46,26 @@ def p_instruction_if_num(p):
     '''instruction  : IFFALSE NUMBER LGT NUMBER GOTO NUMBER
                     | IF NUMBER LGT NUMBER GOTO NUMBER'''
 
-def p_instruction_return(p):
+def p_instruction_return_variable(p):
     '''instruction  : RETURN VARIABLE '''
     use.append(p[2])
 
-def p_instruction_array(p):
-    '''instruction  : VARIABLE ARRAY instruction ARRAY '''
+def p_instruction_return_number(p):
+    '''instruction  : RETURN NUMBER '''
+
+def p_E_array(p):
+    '''E_ARRAY : VARIABLE ARRAY E ARRAY '''
+    use.append(p[1])
+
+def p_E_operator(p):
+    '''E : E OPERATOR E '''
+
+def p_E_number(p):
+    '''E : NUMBER '''
+
+def p_E_variable(p):
+    '''E : VARIABLE '''
+    use.append(p[1])
 
 def p_error(p):
     print("Syntax error at '%s'" % p.value)
@@ -70,7 +73,7 @@ def p_error(p):
 yacc.yacc()
 
 def main():
-    data = """  b := niz[ind + s] """
+    data = """ return 5 """
     yacc.parse(data)
     print(use, kill)
 
