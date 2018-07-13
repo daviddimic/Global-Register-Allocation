@@ -23,14 +23,11 @@ class BasicBlock:
         str += header
         return str
 
-    def __reverse__(self):
+    def reverse(self):
         self.instructions = self.instructions[::-1]
 
-    def __getInstructions__(self):
+    def getInstructions(self):
         return self.instructions
-
-    def getExitBB(self):
-        return self.exitBB
 
     def setInBB(self, inBB):
         if self.inBB != inBB:
@@ -49,9 +46,6 @@ class BasicBlock:
     def getChanges(self):
         return self.changes
 
-    def nextBB(self):
-        return self.endBB + 1
-
 
 def hasChanges(basicBlocks):
     '''
@@ -63,10 +57,12 @@ def hasChanges(basicBlocks):
             return True
     return False
 
+
 def getPairs(instructions):
     """
     Method: getPairs
-    Return: a list of toupples (start, end) with indexes of begining and end of each basic block
+    Return: a list of toupples (start, end) with indexes
+    of begining and end of each basic block
     """
     leaders = getLeaders(instructions)
     n = len(instructions)
@@ -75,7 +71,7 @@ def getPairs(instructions):
     pairStartEnd = []
 
     # we create a pair for each leader
-    for i in range(0, leadersLen):
+    for i in range(leadersLen):
         startBB = int(leaders[i].rsplit(' ')[0].rsplit(':')[0])
         if(i+1 != leadersLen):
             endBB = int(leaders[i+1].rsplit(' ')[0].rsplit(':')[0])
@@ -83,6 +79,7 @@ def getPairs(instructions):
             endBB = n
         pairStartEnd.append((startBB, endBB))
     return pairStartEnd
+
 
 def getLeaders(instructions):
     """
@@ -96,7 +93,7 @@ def getLeaders(instructions):
     leaders = [instructions[0]]
     n = len(instructions)
 
-    for i in range(0, n):
+    for i in range(n):
         if(instructions[i].__contains__("goto")):
             if((i+1)!=n):
                 leaders.append(instructions[i+1])
@@ -106,19 +103,24 @@ def getLeaders(instructions):
             num = instructions[i].rsplit(' ')
             # minus one because of the indexing
             leaders.append(instructions[int(num[-1])-1])
-            # print("Goto " + str(int(num[-1]))) line on which we jump with goto
 
     leaders.sort(key = lambda l: int(l.rsplit(' ')[0].rsplit(':')[0]))
     return leaders
+
 
 def getLeadersFromFile(fileName):
     instructions = getInstructionsFromFile(fileName)
     return getLeaders(instructions)
 
+
 def getInstructionsFromFile(fileName):
-    with open(fileName, 'r') as f:
-        instructions = [line.rstrip('\n') for line in f]
+    try:
+        with open(fileName, 'r') as f:
+            instructions = [line.rstrip('\n') for line in f]
         return instructions
+    except IOError as e:
+        exit(e)
+
 
 def CreateListOfBasicBlocks(pairs, instructions):
     basicBlocks = []
@@ -135,15 +137,18 @@ def CreateListOfBasicBlocks(pairs, instructions):
 
     return basicBlocks
 
+
 def CreateListOfBasicBlocksFromFile(fileName):
     instructions = getInstructionsFromFile(fileName)
     pairs = getPairs(instructions)
     return CreateListOfBasicBlocks(pairs, instructions)
 
+
 def ReverseListOfBasicBlocks(basicBlocks):
     for b in basicBlocks:
-        b.__reverse__()
+        b.reverse()
     basicBlocks.reverse()
+
 
 def PrintPairs(pairs):
     print("Pairs of start end indexes of basic block: ")
@@ -152,6 +157,7 @@ def PrintPairs(pairs):
         print(i)
     print ("---------------------")
 
+
 def PrintLeaderInstructions(leaders):
     print ("Leader instructions: ")
     print ("---------------------")
@@ -159,15 +165,19 @@ def PrintLeaderInstructions(leaders):
         print(leader)
     print ("---------------------")
 
+
 def PrintBasicBlocks(basicBlocks):
     print ("Basic Blocks: ")
     for bb in basicBlocks:
         print(bb)
 
+
 def main():
+    #test
     fileName = 'testBasicBlocks/bbtest2.txt'
     basicBlocks = CreateListOfBasicBlocksFromFile(fileName)
     PrintBasicBlocks(basicBlocks)
+
 
 if __name__ == "__main__":
     main()
