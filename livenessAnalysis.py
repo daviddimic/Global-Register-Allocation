@@ -7,38 +7,18 @@ import yacc
 from functools import reduce
 
 
-def livenessAnalysis(basicBlocks):
-    #TODO napraviti do-while
-    livenessList = []
+def livenessAnalysis(fileName):
 
+    basicBlocks = bb.CreateListOfBasicBlocksFromFile(fileName)
     bb.ReverseListOfBasicBlocks(basicBlocks)
     bb.PrintBasicBlocks(basicBlocks)
 
-
-    use = set([])
-    for i, block in enumerate(basicBlocks):
-        listOfInstructions = block.__getInstructions__()
-
-        for instr in listOfInstructions:
-            parser.kill = []
-            parser.use = []
-
-            useI, killI = parseInstruction(instr)
-            use = use.union(set(useI))
-            use = use.difference(set(killI))
-            print(use)
-            livenessList.append(list(use))
-
-        block.setInBB(use)
-        if i+1 != len(basicBlocks):
-            use = use.union(inSetFromGoto(basicBlocks[i+1], basicBlocks))
-
-
-    while bb.hasChanges(basicBlocks):
-        use = set([])
+    while True:
         livenessList = []
+        use = set([])
+
         for i, block in enumerate(basicBlocks):
-            listOfInstructions = block.__getInstructions__()
+            listOfInstructions = block.getInstructions()
 
             for instr in listOfInstructions:
                 parser.kill = []
@@ -54,11 +34,14 @@ def livenessAnalysis(basicBlocks):
             if i+1 != len(basicBlocks):
                 use = use.union(inSetFromGoto(basicBlocks[i+1], basicBlocks))
 
+        if not bb.hasChanges(basicBlocks):
+            break
+
     return livenessList
 
 
 def inSetFromGoto(block, basicBlocks):
-    instruction = block.__getInstructions__()[0]
+    instruction = block.getInstructions()[0]
     if not instruction.__contains__('goto'):
         return set([])
 
@@ -66,6 +49,7 @@ def inSetFromGoto(block, basicBlocks):
     for b in basicBlocks:
         if b.getStartBB() == gotoNumber:
             return set(b.getInBB())
+
 
 def parseInstruction(instruction):
     #remove number of instruction
@@ -99,7 +83,7 @@ def modelGraph(livenessList):
                 if [node2, node2] in graph:
                     graph.remove([node2, node2])
 
-                #add [a, b] if [a, b] or [b, a] don't exist in graph
+                # add [a, b] if [a, b] or [b, a] don't exist in graph
                 if t not in graph and t_rev not in graph:
                     graph.append(t)
 
@@ -107,11 +91,8 @@ def modelGraph(livenessList):
 
 
 def main():
-    fileName = 'testBasicBlocks/bbtest1.txt'
-    basicBlocks = bb.CreateListOfBasicBlocksFromFile(fileName)
-    print(modelGraph(livenessAnalysis(basicBlocks)))
-    #bb.ReverseListOfBasicBlocks(basicBlocks)
-    #print(inSetFromGoto(basicBlocks[1], basicBlocks))
+    fileName = 'testBasicBlocks/bbtest2.txt'
+    print(modelGraph(livenessAnalysis(fileName)))
 
 if __name__ == "__main__":
     main()
