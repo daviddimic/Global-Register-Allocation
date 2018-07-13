@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys, json
 import argparse
 import graphColoring as gc
+import livenessAnalysis as la
 
 def main():
 
@@ -13,19 +13,15 @@ def main():
     parser.add_argument('path', help = "path to input json file")
     args = parser.parse_args()
 
-    #open input graph
-    try:
-        with open(args.path, "r") as f:
-            graph = json.load(f)
-    except IOError as e:
-        sys.exit(e)
+    #open input code, do liveness analysis and get adjacents list for graph
+    graph = la.modelGraph(la.livenessAnalysis(args.path))
 
     g = gc.Graph(graph)
     print("Initial graph:")
     print(g)
 
     #number of colors for graph coloring
-    k = 4
+    k = 2
     #optional: set color for some vertexes
     #coloring = {'a': 0, 'f':0}
     if args.visual:
