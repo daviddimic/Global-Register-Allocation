@@ -6,12 +6,11 @@ import parser
 import yacc
 from functools import reduce
 
-
 def livenessAnalysis(fileName):
 
     basicBlocks = bb.CreateListOfBasicBlocksFromFile(fileName)
-    bb.ReverseListOfBasicBlocks(basicBlocks)
     bb.PrintBasicBlocks(basicBlocks)
+    bb.ReverseListOfBasicBlocks(basicBlocks)
 
     while True:
         livenessList = []
@@ -38,7 +37,6 @@ def livenessAnalysis(fileName):
             break
 
     return livenessList
-
 
 def inSetFromGoto(block, basicBlocks):
     instruction = block.getInstructions()[0]
@@ -89,9 +87,8 @@ def modelGraph(livenessList):
 
     return graph
 
-
 def main():
-    fileName = 'testBasicBlocks/bbtest2.txt'
+    fileName = 'testBasicBlocks/bbtest3.txt'
     print(modelGraph(livenessAnalysis(fileName)))
 
 if __name__ == "__main__":

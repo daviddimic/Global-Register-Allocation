@@ -121,7 +121,6 @@ def getInstructionsFromFile(fileName):
     except IOError as e:
         exit(e)
 
-
 def CreateListOfBasicBlocks(pairs, instructions):
     basicBlocks = []
     n = len(instructions)
@@ -133,10 +132,9 @@ def CreateListOfBasicBlocks(pairs, instructions):
             # in indexing the instructions first is minus one because of indexing a list starts from zero
             # the second minus one so we don't catch the last instruction of lock which belongs to next block
         else:
+            # if the last block has one or more instructions
             basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]], set([]), True))
-
     return basicBlocks
-
 
 def CreateListOfBasicBlocksFromFile(fileName):
     instructions = getInstructionsFromFile(fileName)
