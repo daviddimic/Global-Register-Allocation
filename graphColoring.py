@@ -169,12 +169,12 @@ class Graph:
             colored_graph = g.graph_coloring(k, coloring)
 
         #TODO izmeniti polazni kod
-        #spilledVarsWriteToFile(inPath, outPath, spilled_vertexes)
+        #spilledVarsWriteToFile(inPath, outPath, spilled_vertexes, coloring)
 
         return colored_graph, spilled_vertexes
 
 
-def spilledVarsWriteToFile(inPath, outPath, spilled_vertexes):
+def spilledVarsWriteToFile(inPath, outPath, spilled_vertexes, coloring):
 
     spilled_occurrence = {k:False for k in spilled_vertexes}
 
@@ -207,7 +207,14 @@ def spilledVarsWriteToFile(inPath, outPath, spilled_vertexes):
 
     inFile.close()
 
-    changeInstrNumerationAndWrite(new_instructions, outPath)
+    #TODO a_loc, c zamenimo sa 0 => a_lo0
+    instructions = []
+    for instr in new_instructions:
+        for k, v in coloring.items():
+            instr = instr.replace(' ' + k, ' r' + str(v))
+        instructions.append(instr)
+
+    changeInstrNumerationAndWrite(instructions, outPath)
 
 
 def changeInstrNumerationAndWrite(instructions, outPath):
@@ -312,4 +319,4 @@ def for_spill(coloring):
 
 if __name__ == "__main__":
     #test
-    spilledVarsWriteToFile("testBasicBlocks/bbtest4.txt", "izlaz.txt", ['a', 'b'])
+    spilledVarsWriteToFile("testBasicBlocks/bbtest4.txt", "izlaz.txt", ['a', 'b'], {'t2': 0, 'c': 0, 't1': 1, 'd': 1})
