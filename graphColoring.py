@@ -216,6 +216,10 @@ def visual_graph_coloring(graph, k, coloring = {}):
     nx.draw_networkx_edges(G_print, pos, edgelist = black_edges)
     plt.show()
 
+    #remove spilled from coloring
+    for v in spilled_vertexes:
+        del colored[v]
+
     return colored, spilled_vertexes
 
 
