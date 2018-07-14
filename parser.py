@@ -3,6 +3,7 @@
 # =================================================================================
 import yacc
 import lexer
+from sys import exit
 
 tokens = lexer.tokens  # token list
 
@@ -69,6 +70,7 @@ def p_E_variable(p):
 
 def p_error(p):
     print("Syntax error at '%s'" % p.value)
+    exit(1)
 
 yacc.yacc()
 
