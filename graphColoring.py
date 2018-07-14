@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import networkx as nx
 import matplotlib.pyplot as plt
 from copy import deepcopy
@@ -151,6 +148,7 @@ class Graph:
         """
         coloring graph with k colors
         if graph can't be colored with k colors do spill
+        returns colored graph dict and list of spilled variables
         """
         #TODO ne radi sa datim coloring
         g = deepcopy(self)
@@ -168,87 +166,7 @@ class Graph:
             coloring = start_coloring.copy()
             colored_graph = g.graph_coloring(k, coloring)
 
-        #TODO izmeniti polazni kod
-        #spilledVarsWriteToFile(inPath, outPath, spilled_vertexes, coloring)
-
         return colored_graph, spilled_vertexes
-
-
-def spilledVarsWriteToFile(inPath, outPath, spilled_vertexes, coloring):
-
-    spilled_occurrence = {k:False for k in spilled_vertexes}
-
-    #open input file
-    inFile = open(inPath, 'r')
-
-    instructions = inFile.readlines()
-    new_instructions = []
-    for instr in instructions:
-
-        varFromMemory = []
-        varToMemory = []
-        for spilled in spilled_vertexes:
-            if instr.find(spilled) != -1:
-                if spilled_occurrence[spilled] == False:
-                    varToMemory.append(spilled)
-                    spilled_occurrence[spilled] = True
-                else:
-                    varFromMemory.append(spilled)
-
-        #other occurrences
-        for spilled in varFromMemory:
-            new_instructions.append("x: {} := M[{}_loc]\n".format(spilled, spilled))
-
-        new_instructions.append(instr)
-
-        #first occurrences
-        for spilled in varToMemory:
-            new_instructions.append("x: M[{}_loc] := {}\n".format(spilled, spilled))
-
-    inFile.close()
-
-    #TODO a_loc, c zamenimo sa 0 => a_lo0
-    instructions = []
-    for instr in new_instructions:
-        for k, v in coloring.items():
-            instr = instr.replace(' ' + k, ' r' + str(v))
-        instructions.append(instr)
-
-    changeInstrNumerationAndWrite(instructions, outPath)
-
-
-def changeInstrNumerationAndWrite(instructions, outPath):
-    #open output file and write new instructions
-    outFile = open(outPath, 'w')
-
-    #change numeration
-    for num, instr in enumerate(instructions):
-        new_instr = instr
-
-        #change goto number
-        if instr.find('goto') != -1:
-            gotoNum = int(instr.split(' ')[-1])
-            new_goto = numOfInsertedInstr(gotoNum, instructions) + gotoNum
-            new_instr = instr.rsplit(' ', 1)[0] + ' ' + str(new_goto) + '\n'
-
-        #remove instruction number
-        instr = new_instr.split(':', 1)[1].lstrip()
-        #new number apply
-        instr = str(num+1) + ": " + instr
-        outFile.write(instr)
-
-    outFile.close()
-
-
-def numOfInsertedInstr(currentInstrNum, instructions):
-    num = 0
-    for instr in instructions:
-        i = instr.split(':', 1)[0].strip()
-        if i == 'x':
-            num += 1
-        elif int(i) >= currentInstrNum:
-            return num
-    return num
 
 
 def visual_graph_coloring(graph, k, coloring = {}):
@@ -315,8 +233,3 @@ def for_spill(coloring):
         if color == None:
             spill_list.append(spill)
     return spill_list
-
-
-if __name__ == "__main__":
-    #test
-    spilledVarsWriteToFile("testBasicBlocks/bbtest4.txt", "izlaz.txt", ['a', 'b'], {'t2': 0, 'c': 0, 't1': 1, 'd': 1})
