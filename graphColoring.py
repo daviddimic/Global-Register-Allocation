@@ -178,9 +178,12 @@ def visual_graph_coloring(graph, k, coloring = {}):
     #color graph with spill step
     colored, spilled_vertexes = g.spill(k, coloring)
 
-    #remove spilled vertexes
+    #color spilled vertexes
     for v in spilled_vertexes:
-        g.remove_vertex(v)
+        colored[v] = k
+
+    if len(spilled_vertexes) != 0:
+        k += 1
 
     #model nx graph and add edges
     G_print = nx.Graph()
@@ -194,12 +197,19 @@ def visual_graph_coloring(graph, k, coloring = {}):
     for (vertex, vertex_color) in s_colored_graph:
         new_colors.append(list_of_colors[vertex_color])
 
+
     #draw
     pos = nx.spring_layout(G_print)
+
     nx.draw_networkx_nodes(G_print, pos, cmap = plt.get_cmap('jet'),
                            nodelist = sorted(G_print.nodes()),
                            node_color = new_colors,
                            node_size = 500)
+    nx.draw_networkx_nodes(G_print, pos, cmap = plt.get_cmap('jet'),
+                           nodelist = spilled_vertexes,
+                           node_color = 'w',
+                           node_size = 600)
+
     nx.draw_networkx_labels(G_print, pos)
 
     black_edges = G_print.edges()

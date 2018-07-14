@@ -7,9 +7,6 @@ import livenessAnalysis as la
 
 
 def spilledVarsWriteToFile(inPath, outPath, spilled_vertexes, coloring):
-
-    spilled_occurrence = {k:False for k in spilled_vertexes}
-
     #open input file
     inFile = open(inPath, 'r')
 
@@ -19,27 +16,40 @@ def spilledVarsWriteToFile(inPath, outPath, spilled_vertexes, coloring):
 
         varFromMemory = []
         varToMemory = []
+
         for spilled in spilled_vertexes:
-            if instr.find(spilled) != -1:
-                if spilled_occurrence[spilled] == False:
+            var_def = ""
+            use = ""
+            if instr.find(':=') != -1:
+                #left and right od ':='
+                var_def = instr.split(':=')[0]
+                #if there is [a], a shoud be 'use', not 'def'
+                if var_def.find('[') != -1:
+                    use = (var_def.split('[')[1]).split(']')[0]
+                    var_def = ""
+                var_use =  instr.split(':=')[1] + use
+            else:
+                var_use = instr
+
+            if var_def.find(spilled) != -1:
                     varToMemory.append(spilled)
-                    spilled_occurrence[spilled] = True
-                else:
+            if var_use.find(spilled) != -1:
                     varFromMemory.append(spilled)
 
-        #other occurrences
+
+        #definition of variable spilled
         for spilled in varFromMemory:
             new_instructions.append("x: {} := M[{}_loc]\n".format(spilled, spilled))
 
         new_instructions.append(instr)
 
-        #first occurrences
+        #use variable spilled
         for spilled in varToMemory:
             new_instructions.append("x: M[{}_loc] := {}\n".format(spilled, spilled))
 
     inFile.close()
 
-    #replace all variables that is not spilled with their allocated register
+    #TODO replace all variables that is not spilled with their allocated register
     instructions = []
     for instr in new_instructions:
         for k, v in coloring.items():
