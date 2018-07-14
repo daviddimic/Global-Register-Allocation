@@ -25,12 +25,10 @@ def main():
     #optional: set color for some vertexes
     #coloring = {'a': 0, 'f':0}
     if args.visual:
-        colored_graph = gc.visual_graph_coloring(g, k)
-        if colored_graph == None:
-            print("Graph can't be colored with ", k, " colors!")
-        else:
-            print("Number of colors used: ", gc.used_colors(colored_graph))
-            print(colored_graph)
+        colored_graph, spilled_vertexes = gc.visual_graph_coloring(g, k)
+        print("Number of colors used: ", gc.used_colors(colored_graph))
+        print("Graph coloring:\n", colored_graph)
+        print("Spilled:\n", spilled_vertexes)
     else:
         print(g.spill(k))
 

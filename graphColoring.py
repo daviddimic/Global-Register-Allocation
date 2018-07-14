@@ -165,13 +165,54 @@ class Graph:
             spill_vertex = spill_list.pop()
             g.remove_vertex(spill_vertex)
             spilled_vertexes.append(spill_vertex)
-
-            #TODO izmeniti polazni kod
-
             coloring = start_coloring.copy()
             colored_graph = g.graph_coloring(k, coloring)
 
+        #TODO izmeniti polazni kod
+        #otvori ulazni fajl
+        #ako linija ne sadrzi ni jednu od promenjivih za spill -> prepisi je u izlaznu
+        #ako sa pojavi'a' prvi put dodati posle te instr M[a_loc] := a
+        #za svako sledece pojavljivanje dodati PRE te linije a := M[a_loc]
+
         return colored_graph, spilled_vertexes
+
+
+def spillWriteToFile(inPath, outPath, spilled_vertexes):
+    #TODO resiti numeraciju
+
+    spilled_occurrence = {k:False for k in spilled_vertexes}
+    print(spilled_occurrence)
+
+    #open output file
+    outFile = open(outPath, 'w')
+
+    #open input file
+    with open(inPath, 'r') as inFile:
+
+        lines = inFile.readlines()
+        for line in lines:
+
+            varFromMemory = []
+            varToMemory = []
+            for spilled in spilled_vertexes:
+                if line.find(spilled) != -1:
+                    if spilled_occurrence[spilled] == False:
+                        varToMemory.append(spilled)
+                        spilled_occurrence[spilled] = True
+                    else:
+                        varFromMemory.append(spilled)
+
+            #other occurrences
+            for spilled in varFromMemory:
+                outFile.write("x: {} := M[{}_loc]\n".format(spilled, spilled))
+
+            outFile.write(line)
+
+            #first occurrences
+            for spilled in varToMemory:
+                outFile.write("x: M[{}_loc] := {}\n".format(spilled, spilled))
+
+    outFile.close()
 
 
 def visual_graph_coloring(graph, k, coloring = {}):
@@ -179,11 +220,9 @@ def visual_graph_coloring(graph, k, coloring = {}):
     Visualize colored graph with k colors
     """
     g = deepcopy(graph)
-    
+
     #color graph with spill step
     colored, spilled_vertexes = g.spill(k, coloring)
-    if colored == None:
-        return None
 
     #remove spilled vertexes
     for v in spilled_vertexes:
@@ -192,7 +231,6 @@ def visual_graph_coloring(graph, k, coloring = {}):
     #model nx graph and add edges
     G_print = nx.Graph()
     G_print.add_edges_from(g.graph)
-
 
     list_of_colors = [float(x/k) for x in range(k)]
 
@@ -214,7 +252,7 @@ def visual_graph_coloring(graph, k, coloring = {}):
     nx.draw_networkx_edges(G_print, pos, edgelist = black_edges)
     plt.show()
 
-    return colored
+    return colored, spilled_vertexes
 
 
 def used_colors(colored_graph):
@@ -241,3 +279,7 @@ def for_spill(coloring):
         if color == None:
             spill_list.append(spill)
     return spill_list
+
+
+if __name__ == "__main__":
+    spillWriteToFile("testBasicBlocks/bbtest4.txt", "izlaz.txt", ['a', 'b'])
