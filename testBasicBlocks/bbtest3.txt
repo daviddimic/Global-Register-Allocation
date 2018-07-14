@@ -1,8 +1,8 @@
-1: a:=0
-2: b:=a+1
-3: c:=c+b
-4: niz[a]:=b+2
-5: if a<N goto 2
+1: a := 0
+2: b := a + 1
+3: c := c + b
+4: niz[a] := b + 2
+5: if a < c goto 2
 6: a := 3
 7: k := niz[1]
 8: return c
