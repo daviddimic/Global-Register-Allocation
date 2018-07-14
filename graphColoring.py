@@ -169,50 +169,79 @@ class Graph:
             colored_graph = g.graph_coloring(k, coloring)
 
         #TODO izmeniti polazni kod
-        #otvori ulazni fajl
-        #ako linija ne sadrzi ni jednu od promenjivih za spill -> prepisi je u izlaznu
-        #ako sa pojavi'a' prvi put dodati posle te instr M[a_loc] := a
-        #za svako sledece pojavljivanje dodati PRE te linije a := M[a_loc]
+        #spilledVarsWriteToFile(inPath, outPath, spilled_vertexes)
 
         return colored_graph, spilled_vertexes
 
 
-def spillWriteToFile(inPath, outPath, spilled_vertexes):
-    #TODO resiti numeraciju
+def spilledVarsWriteToFile(inPath, outPath, spilled_vertexes):
 
     spilled_occurrence = {k:False for k in spilled_vertexes}
-    print(spilled_occurrence)
-
-    #open output file
-    outFile = open(outPath, 'w')
 
     #open input file
-    with open(inPath, 'r') as inFile:
+    inFile = open(inPath, 'r')
 
-        lines = inFile.readlines()
-        for line in lines:
+    instructions = inFile.readlines()
+    new_instructions = []
+    for instr in instructions:
 
-            varFromMemory = []
-            varToMemory = []
-            for spilled in spilled_vertexes:
-                if line.find(spilled) != -1:
-                    if spilled_occurrence[spilled] == False:
-                        varToMemory.append(spilled)
-                        spilled_occurrence[spilled] = True
-                    else:
-                        varFromMemory.append(spilled)
+        varFromMemory = []
+        varToMemory = []
+        for spilled in spilled_vertexes:
+            if instr.find(spilled) != -1:
+                if spilled_occurrence[spilled] == False:
+                    varToMemory.append(spilled)
+                    spilled_occurrence[spilled] = True
+                else:
+                    varFromMemory.append(spilled)
 
-            #other occurrences
-            for spilled in varFromMemory:
-                outFile.write("x: {} := M[{}_loc]\n".format(spilled, spilled))
+        #other occurrences
+        for spilled in varFromMemory:
+            new_instructions.append("x: {} := M[{}_loc]\n".format(spilled, spilled))
 
-            outFile.write(line)
+        new_instructions.append(instr)
 
-            #first occurrences
-            for spilled in varToMemory:
-                outFile.write("x: M[{}_loc] := {}\n".format(spilled, spilled))
+        #first occurrences
+        for spilled in varToMemory:
+            new_instructions.append("x: M[{}_loc] := {}\n".format(spilled, spilled))
+
+    inFile.close()
+
+    changeInstrNumerationAndWrite(new_instructions, outPath)
+
+
+def changeInstrNumerationAndWrite(instructions, outPath):
+    #open output file and write new instructions
+    outFile = open(outPath, 'w')
+
+    #change numeration
+    for num, instr in enumerate(instructions):
+        new_instr = instr
+
+        #change goto number
+        if instr.find('goto') != -1:
+            gotoNum = int(instr.split(' ')[-1])
+            new_goto = numOfInsertedInstr(gotoNum, instructions) + gotoNum
+            new_instr = instr.rsplit(' ', 1)[0] + ' ' + str(new_goto) + '\n'
+
+        #remove instruction number
+        instr = new_instr.split(':', 1)[1].lstrip()
+        #new number apply
+        instr = str(num+1) + ": " + instr
+        outFile.write(instr)
 
     outFile.close()
+
+
+def numOfInsertedInstr(currentInstrNum, instructions):
+    num = 0
+    for instr in instructions:
+        i = instr.split(':', 1)[0].strip()
+        if i == 'x':
+            num += 1
+        elif int(i) >= currentInstrNum:
+            return num
+    return num
 
 
 def visual_graph_coloring(graph, k, coloring = {}):
@@ -282,4 +311,5 @@ def for_spill(coloring):
 
 
 if __name__ == "__main__":
-    spillWriteToFile("testBasicBlocks/bbtest4.txt", "izlaz.txt", ['a', 'b'])
+    #test
+    spilledVarsWriteToFile("testBasicBlocks/bbtest4.txt", "izlaz.txt", ['a', 'b'])
