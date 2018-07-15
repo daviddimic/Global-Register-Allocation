@@ -99,6 +99,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--visual', action = "store_true")
     parser.add_argument('path', help = "path to input json file")
+    parser.add_argument('numOfRegisters', type = int, help = "number of registers")
     args = parser.parse_args()
 
     #open input code, do liveness analysis and get adjacents list for graph
@@ -111,7 +112,7 @@ def main():
     print(g)
 
     #number of colors for graph coloring
-    k = 2
+    k = int(args.numOfRegisters)
     #optional: set color for some vertexes
     #coloring = {'a': 0, 'f':0}
     if args.visual:
