@@ -49,7 +49,7 @@ def spilledVarsWriteToFile(inPath, outPath, spilled_vertexes, coloring):
 
     inFile.close()
 
-    #TODO replace all variables that is not spilled with their allocated register
+    #replace all variables that is not spilled with their allocated register
     instructions = []
     for instr in new_instructions:
         for k, v in coloring.items():

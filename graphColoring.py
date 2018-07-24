@@ -150,7 +150,6 @@ class Graph:
         if graph can't be colored with k colors do spill
         returns colored graph dict and list of spilled variables
         """
-        #TODO ne radi sa datim coloring
         g = deepcopy(self)
         start_coloring = coloring.copy()
 

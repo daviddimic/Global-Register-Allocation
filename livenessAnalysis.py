@@ -26,7 +26,7 @@ def livenessAnalysis(fileName):
                 useI, killI = parseInstruction(instr)
                 use = use.union(set(useI))
                 use = use.difference(set(killI))
-                print(use)
+                #print(use)
                 livenessList.append(list(use))
 
             block.setInBB(use)
