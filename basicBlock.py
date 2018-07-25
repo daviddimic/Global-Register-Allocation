@@ -127,11 +127,6 @@ def CreateListOfBasicBlocks(pairs, instructions):
 
 
     for pair in pairs:
-    #TODO ako je POSLEDNJI BLOK udji u else granu, inace u if
-    #pravi problem ako je poslednji blok samo jedna instrukcija
-    #npr predposlednja instrukcija sa goto i poslednja samo return nesto
-    #ispisuje u predposlednji blok instrukciju iz poslednjeg bloka
-
         if(n != pair[1]):
              # so the last block catches the last instruction
             basicBlocks.append(BasicBlock(pair[0], pair[1], instructions[pair[0]-1:pair[1]-1], set([]), False))
